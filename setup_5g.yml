@@ -1,0 +1,37 @@
+---
+- name: Deploy 5G Autonomous Lab
+  hosts: all
+  become: yes
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+- name: Setup 5G Core (Open5GS)
+  hosts: fiveg_core
+  become: yes
+  tasks:
+    - name: Install MongoDB
+      apt:
+        name: mongodb
+        state: present
+    - name: Add Open5GS Repository
+      apt_repository:
+        repo: 'ppa:open5gs/latest'
+    - name: Install Open5GS
+      apt:
+        name: open5gs
+        state: present
+
+- name: Setup 5G RAN (UERANSIM)
+  hosts: fiveg_ran
+  become: yes
+  tasks:
+    - name: Install Build Dependencies
+      apt:
+        name: ['cmake', 'g++', 'libsctp-dev', 'lksctp-tools', 'iproute2', 'git']
+        state: present
+    - name: Clone UERANSIM
+      git:
+        repo: 'https://github.com/aligungr/UERANSIM'
+        dest: /home/vagrant/UERANSIM
